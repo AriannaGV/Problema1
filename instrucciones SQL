@@ -1,0 +1,166 @@
+create table cliente(
+NCliente varchar(8) primary key not null,
+Saldo int not null,
+LimitCredito int not null,
+)
+create table direcciones(
+NCliente varchar(8) not null, 
+DireccionesEnvio varchar(30) not null,
+
+constraint FK_direccion_cliente
+foreign key (NCLiente) references cliente(NCliente)
+   on update cascade
+   on delete cascade
+) 
+
+create table articulo(
+NArticulo varchar(8) primary key not null,
+DescripArticulo varchar(30) not null,
+)
+
+create table fabrica(
+NArticulo varchar(8) not null,
+FabricasDistribuida varchar(15) not null, 
+Existencias int not null, 
+
+Constraint FK_fabrica_articulo
+foreign key (NArticulo) references articulo(NArticulo)
+   on update cascade
+   on delete cascade
+)
+
+create table pedido(
+NCliente varchar(8) not null, 
+DireccionEnvio varchar(15) not null,
+FechaPedido date not null, 
+NArticuloPedido varchar(8) not null, 
+Cantidad int not null,
+
+constraint fk_pedido-cliente
+foreign key(NCliente) references cliente(NCliente)
+   on update cascade
+   on delete cascade 
+)
+
+CREATE OR ALTER PROCEDURE agregarcliente
+@Ncliente VARCHAR(8),
+@saldo int,
+@limcredidto  int,
+@Agregado int out
+AS
+BEGIN
+	IF NOT EXISTS (SELECT * FROM dbo.cliente clie WHERE clie.NCliente = @Ncliente)
+		BEGIN
+			   INSERT INTO dbo.cliente (NCliente, Saldo, LimitCredito)
+			   VALUES (@Ncliente,@saldo,@limcredito);
+			   SET @Agregado = 1;
+		END
+		
+END
+
+/
+CREATE OR ALTER PROCEDURE eliminarcliente
+@Ncliente VARCHAR(8),
+@Eliminado INT out
+AS
+BEGIN
+	IF EXISTS (SELECT * FROM dbo.cliente cli WHERE cli.NCliente = @Ncliente)
+	BEGIN
+		   DELETE FROM dbo.cliente WHERE NCliente = @Ncliente
+		   set @Eliminado = 1;
+	END
+END
+--------------
+CREATE OR ALTER PROCEDURE agregardireccion
+@Ncliente  varchar(8),
+@direccion VARCHAR(15),
+@Agregado int out
+AS
+BEGIN
+	IF NOT EXISTS (SELECT * FROM dbo.direcciones WHERE cli.NCliente = @Ncliente)
+		BEGIN
+			   INSERT INTO dbo.direcciones (NCliente, DireccionesEnvio)
+			   VALUES (@Ncliente, @direccion);
+			   SET @Agregado = 1;
+		END
+		
+END
+-------------------
+CREATE OR ALTER PROCEDURE agregararticulo
+@NArticulo VARCHAR(8),
+@descripArticulo varchar(30),
+@Agregado int out
+AS
+BEGIN
+	IF NOT EXISTS (SELECT * FROM dbo.articulo arti WHERE arti.NArticulo = @NArticulo)
+		BEGIN
+			   INSERT INTO dbo.articulo (Narticulo, DescripArticulo)
+			   VALUES (@NArticulo,@descripArticulo);
+			   SET @Agregado = 1;
+		END
+		
+END
+
+/
+CREATE OR ALTER PROCEDURE eliminararticulo
+@NArticulo VARCHAR(8),
+@Eliminado INT out
+AS
+BEGIN
+	IF EXISTS (SELECT * FROM dbo.articulo arti WHERE arti.NArticulo = @NArticulo)
+	BEGIN
+		   DELETE FROM dbo.articulo WHERE NArticulo = @NArticulo
+		   set @Eliminado = 1;
+	END
+END
+-----------------------------
+CREATE OR ALTER PROCEDURE agregarfabrica
+@NArticulo varchar(8),
+@Fabricasdistribuida VARCHAR(15),
+@Existencias int,
+@Agregado int out
+AS
+BEGIN
+	IF NOT EXISTS (SELECT * FROM dbo.direcciones dir WHERE dir.NArticulo = @NArticulo)
+		BEGIN
+			   INSERT INTO dbo.direcciones (NArticulo, FabricasDistribuida, Existencias)
+			   VALUES (@NArticulo, @Fabricasdistribuida, @Existencias);
+			   SET @Agregado = 1;
+		END
+		
+END
+-------------------
+CREATE OR ALTER   PROCEDURE agregarPedido
+@NCliente VARCHAR(8),
+@DireccionEnvio VARCHAR(30),
+@FechaPedido VARCHAR(10),
+@NArticuloPedido varchar(8),
+@Cantidad int,
+@Agregado int out
+AS
+BEGIN
+	IF NOT EXISTS (SELECT * FROM dbo.pedido ped WHERE ped.NCliente = @NCliente)
+		BEGIN
+			   INSERT INTO dbo.pedido(NCliente, DireccionEnvio, FechaPedido, NArticuloPedido, Cantidad)
+			   VALUES (@NCliente,@DireccionEnvio,@FechaPedido,@NArticuloPedido,@Cantidad);
+			   SET @Agregado = 1;
+		END
+		
+END
+
+CREATE OR ALTER   PROCEDURE eliminarPedido
+@NCliente VARCHAR(8),
+@Eliminado INT out
+AS
+BEGIN
+	IF EXISTS (SELECT * FROM dbo.pedido ped WHERE ped.NCliente = @NCliente)
+	BEGIN
+		   DELETE FROM dbo.pedido WHERE NCliente= @NCliente
+		   set @Eliminado = 1;
+	END
+END
+
+
+
+
+
